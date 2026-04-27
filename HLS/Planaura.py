@@ -5,6 +5,7 @@ import traceback
 import importlib
 import importlib.util
 
+
 MODULE_ROOT = os.path.dirname(os.path.abspath(__file__))
 LOCAL_LIB_ROOT = os.path.join(MODULE_ROOT, "lib")
 if os.path.isdir(LOCAL_LIB_ROOT) and LOCAL_LIB_ROOT not in sys.path:
@@ -31,6 +32,7 @@ def _write_error_log(message: str) -> None:
 
 
 def _import_resume_pretrained_network():
+
     try:
         from planaura.networks.network_generator import resume_pretrained_network
         return resume_pretrained_network
@@ -246,45 +248,47 @@ class Planaura:
                 "description": "Unused by this adapter; kept for ArcGIS tool compatibility",
             },
             {
-                "name": "use_f16",
-                "dataType": "numeric",
-                "required": False,
-                "value": 0,
-                "displayName": "Use Float16 (GPU only)",
-                "description": "0 disabled, 1 enabled",
-            },
-            {
-                "name": "high_threshold",
+                "name": "no_change_threshold",
                 "dataType": "numeric",
                 "required": False,
                 "value": 0.80,
-                "displayName": "No-Change Threshold",
+                "displayName": "No Change Threshold",
                 "description": "cosine > this => class 1",
             },
             {
-                "name": "mid_threshold",
+                "name": "low_change_threshold",
                 "dataType": "numeric",
                 "required": False,
                 "value": 0.60,
-                "displayName": "Low-Change Threshold",
-                "description": "cosine > this => class 2",
+                "displayName": "Low Change Threshold",
+                "description": "cosine > this and <= No Change Threshold => class 2",
             },
             {
-                "name": "low_threshold",
+                "name": "moderate_change_threshold",
                 "dataType": "numeric",
                 "required": False,
                 "value": 0.40,
-                "displayName": "Moderate-Change Threshold",
-                "description": "cosine > this => class 3; else class 4",
+                "displayName": "Moderate Change Threshold",
+                "description": "Shown in the UI for the class 3 / class 4 split. Normally keep this equal to High Change Threshold.",
             },
+
         ]
 
     def getConfiguration(self, **scalars):
         self.padding = int(scalars.get("padding", 64))
-        self._use_f16 = bool(int(scalars.get("use_f16", 0)))
-        self.high_threshold = float(scalars.get("high_threshold", 0.80))
-        self.mid_threshold = float(scalars.get("mid_threshold", 0.60))
-        self.low_threshold = float(scalars.get("low_threshold", 0.40))
+        self._use_f16 = False
+
+        self.no_change_threshold = float(scalars.get("no_change_threshold", 0.80))
+        self.low_change_threshold = float(scalars.get("low_change_threshold", 0.60))
+        self.moderate_change_threshold = float(scalars.get("moderate_change_threshold", 0.40))
+
+        # Three effective boundaries for four classes:
+        # 1/2 boundary = no_change_threshold
+        # 2/3 boundary = low_change_threshold
+        # 3/4 boundary = moderate_change_threshold
+        self.no_change_threshold = min(self.no_change_threshold, 1.0)
+        self.low_change_threshold = min(self.low_change_threshold, self.no_change_threshold)
+        self.moderate_change_threshold = min(self.moderate_change_threshold, self.low_change_threshold)
 
         img_size = int(getattr(self, "_emd", {}).get("ImageHeight", 512))
         return {
@@ -425,11 +429,7 @@ class Planaura:
             x_tensor = torch.from_numpy(x_np).unsqueeze(0).to(self._device)
 
             with torch.no_grad():
-                if self._use_f16 and self._device.type == "cuda":
-                    with torch.autocast("cuda", dtype=torch.float16):
-                        _, change_tuple, _ = self._model(x_tensor.float())
-                else:
-                    _, change_tuple, _ = self._model(x_tensor.float())
+                _, change_tuple, _ = self._model(x_tensor.float())
 
             cosine_map, which_before = change_tuple
             if cosine_map is None:
@@ -447,9 +447,9 @@ class Planaura:
             valid = np.isfinite(cos_use) & (cos_use != -100.0)
             if valid.any():
                 cls = np.full((H_in, W_in), 4, dtype=np.uint16)
-                cls[cos_use > self.low_threshold] = 3
-                cls[cos_use > self.mid_threshold] = 2
-                cls[cos_use > self.high_threshold] = 1
+                cls[cos_use > self.moderate_change_threshold] = 3
+                cls[cos_use > self.low_change_threshold] = 2
+                cls[cos_use > self.no_change_threshold] = 1
                 cls[~valid] = 0
 
                 out2d[:, :] = cls

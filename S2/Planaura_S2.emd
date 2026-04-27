@@ -37,8 +37,8 @@
         "batch_size": 1,
         "use_f16": 0,
         "high_threshold": 0.80,
-        "mid_threshold": 0.50,
-        "low_threshold": 0.20
+        "mid_threshold": 0.60,
+        "low_threshold": 0.40
     },
 
     "Classes": [
