@@ -4,21 +4,42 @@
     "InferenceFunction": ".\\Planaura.py",
     "ModelFile": ".\\model\\Planaura-1.0-S2.pth",
     "ModelType": "ImageClassification",
-
     "ModelName": "Planaura_S2",
-
     "ImageHeight": 512,
     "ImageWidth": 512,
     "NumFrames": 2,
-
-    "ExtractBands": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-
-    "DataMean": [565.6755, 735.8813, 694.7028, 1915.2649, 1312.5024, 773.4745],
-    "DataStd":  [1381.9485, 1344.5884, 1301.9897, 1132.6580, 807.0455, 594.1602],
-
+    "ExtractBands": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+    ],
+    "DataMean": [
+        565.6755,
+        735.8813,
+        694.7028,
+        1915.2649,
+        1312.5024,
+        773.4745
+    ],
+    "DataStd": [
+        1381.9485,
+        1344.5884,
+        1301.9897,
+        1132.658,
+        807.0455,
+        594.1602
+    ],
     "NoData": -9999,
     "NoDataFloat": 0.0001,
-
     "PatchSize": 16,
     "PatchStride": 16,
     "EmbedDim": 768,
@@ -31,21 +52,58 @@
     "TubeletSize": 1,
     "EmbedAttention": true,
     "UseGPU": true,
-
     "Kwargs": {
         "padding": 64,
         "batch_size": 1,
-        "use_f16": 0,
-        "high_threshold": 0.80,
-        "mid_threshold": 0.60,
-        "low_threshold": 0.40
+        "no_change_threshold": 0.8,
+        "low_change_threshold": 0.6,
+        "moderate_change_threshold": 0.4
     },
-
     "Classes": [
-        {"Value": 0, "Name": "No_Data",         "Color": [0,   0,   0  ]},
-        {"Value": 1, "Name": "No_Change",       "Color": [0,   153, 0  ]},
-        {"Value": 2, "Name": "Low_Change",      "Color": [204, 230, 0  ]},
-        {"Value": 3, "Name": "Moderate_Change", "Color": [255, 153, 0  ]},
-        {"Value": 4, "Name": "High_Change",     "Color": [204, 0,   0  ]}
+        {
+            "Value": 0,
+            "Name": "No_Data",
+            "Color": [
+                0,
+                0,
+                0
+            ]
+        },
+        {
+            "Value": 1,
+            "Name": "No_Change",
+            "Color": [
+                0,
+                153,
+                0
+            ]
+        },
+        {
+            "Value": 2,
+            "Name": "Low_Change",
+            "Color": [
+                204,
+                230,
+                0
+            ]
+        },
+        {
+            "Value": 3,
+            "Name": "Moderate_Change",
+            "Color": [
+                255,
+                153,
+                0
+            ]
+        },
+        {
+            "Value": 4,
+            "Name": "High_Change",
+            "Color": [
+                204,
+                0,
+                0
+            ]
+        }
     ]
 }

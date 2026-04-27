@@ -5,7 +5,9 @@ import traceback
 import importlib
 import importlib.util
 
-
+# CRITICAL on Windows:
+# Keep lib/ ahead of MODULE_ROOT so `import planaura` resolves to lib/planaura/
+# and not accidentally to this file (Planaura.py) via case-insensitive matching.
 MODULE_ROOT = os.path.dirname(os.path.abspath(__file__))
 LOCAL_LIB_ROOT = os.path.join(MODULE_ROOT, "lib")
 if os.path.isdir(LOCAL_LIB_ROOT) and LOCAL_LIB_ROOT not in sys.path:
