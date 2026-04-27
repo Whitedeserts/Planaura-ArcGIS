@@ -1,36 +1,44 @@
-# Planaura HLS for ArcGIS Pro
+# Planaura for ArcGIS Pro
 
-This repository provides the **Planaura HLS Deep Learning Package (DLPK)** for change detection in satellite imagery using **ArcGIS Pro**.
+This repository provides **Planaura Deep Learning Packages (DLPK)** for change detection in satellite imagery using **ArcGIS Pro**.
 
 ## About Planaura
 
 Planaura is a collection of Canadian geospatial foundation models developed at the **Canada Centre for Mapping and Earth Observation** at **Natural Resources Canada (NRCan)**. The model is trained on satellite imagery from Harmonized Landsat and Sentinel (HLS) and Sentinel-2 (S2) sources, covering Canada from 2015-2024.
-
-### Model Variants
-
-| Model | Best For | Resolution |
-|-------|----------|------------|
-| **Planaura_HLS** | HLS imagery | 30m |
-| **Planaura_S2** | Sentinel-2 imagery | 10-20m |
 
 ### Resources
 
 - **Hugging Face:** https://huggingface.co/NRCan/Planaura-1.0
 - **GitHub:** https://github.com/NRCan/planaura/
 
+## Model Variants
+
+| Model | Best For | Resolution | Folder |
+|-------|----------|------------|--------|
+| **Planaura_HLS** | HLS imagery | 30m | `HLS/` |
+| **Planaura_S2** | Sentinel-2 imagery | 10-20m | `S2/` |
+
 ## Repository Structure
 
 ```
-├── Planaura.py          # ArcGIS Python raster function
-├── Planaura_HLS.emd     # Esri model definition
-└── lib/                 # Vendored support libraries
+├── README.md
+├── HLS/
+│   ├── Planaura.py           # ArcGIS Python raster function
+│   └── Planaura_HLS.emd      # Esri model definition
+├── S2/
+│   ├── Planaura.py           # ArcGIS Python raster function
+│   └── Planaura_S2.emd       # Esri model definition
+└── lib/                      # Shared vendored libraries
 ```
 
 ## Usage in ArcGIS Pro
 
 **Tool:** Image Analyst > Deep Learning > Classify Pixels Using Deep Learning
 
-**Model Definition:** `Planaura_HLS.dlpk`
+| Variant | Model Definition |
+|---------|------------------|
+| HLS | `Planaura_HLS.dlpk` |
+| S2 | `Planaura_S2.dlpk` |
 
 **Arguments:**
 ```
@@ -41,8 +49,17 @@ padding=64; batch_size=1; use_f16=0
 
 Provide a **12-band composite raster** with this exact band order:
 
-| Bands | Image | Spectral Band |
-|-------|-------|---------------|
+### HLS Variant
+
+| Bands | Image | Spectral Bands |
+|-------|-------|----------------|
+| 1-6 | Before | B02 (Blue), B03 (Green), B04 (Red), B8A (NIR 865nm), B11 (SWIR 1610nm), B12 (SWIR 2190nm) |
+| 7-12 | After | B02 (Blue), B03 (Green), B04 (Red), B8A (NIR 865nm), B11 (SWIR 1610nm), B12 (SWIR 2190nm) |
+
+### S2 Variant
+
+| Bands | Image | Spectral Bands |
+|-------|-------|----------------|
 | 1-6 | Before | B02 (Blue), B03 (Green), B04 (Red), B8A (NIR 865nm), B11 (SWIR 1610nm), B12 (SWIR 2190nm) |
 | 7-12 | After | B02 (Blue), B03 (Green), B04 (Red), B8A (NIR 865nm), B11 (SWIR 1610nm), B12 (SWIR 2190nm) |
 
