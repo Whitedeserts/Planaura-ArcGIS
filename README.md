@@ -1,12 +1,21 @@
 # Planaura HLS for ArcGIS Pro
 
-This repository provides reference documentation for the **Planaura HLS Deep Learning Package (DLPK)** for use with **ArcGIS Pro**.
+This repository provides the **Planaura HLS Deep Learning Package (DLPK)** for change detection in satellite imagery using **ArcGIS Pro**.
 
 ## About Planaura
 
-Planaura is a deep learning model for change detection in satellite imagery. For more information about the model, training, and additional resources:
+Planaura is a collection of Canadian geospatial foundation models developed at the **Canada Centre for Mapping and Earth Observation** at **Natural Resources Canada (NRCan)**. The model is trained on satellite imagery from Harmonized Landsat and Sentinel (HLS) and Sentinel-2 (S2) sources, covering Canada from 2015-2024.
 
-- **Hugging Face:** https://huggingface.co/NRCan/Planaura
+### Model Variants
+
+| Model | Best For | Resolution |
+|-------|----------|------------|
+| **Planaura_HLS** | HLS imagery | 30m |
+| **Planaura_S2** | Sentinel-2 imagery | 10-20m |
+
+### Resources
+
+- **Hugging Face:** https://huggingface.co/NRCan/Planaura-1.0
 - **GitHub:** https://github.com/NRCan/planaura/
 
 ## Repository Structure
@@ -17,69 +26,50 @@ Planaura is a deep learning model for change detection in satellite imagery. For
 └── lib/                 # Vendored support libraries
 ```
 
-Use it with:
+## Usage in ArcGIS Pro
 
-**Image Analyst → Deep Learning → Classify Pixels Using Deep Learning**
+**Tool:** Image Analyst > Deep Learning > Classify Pixels Using Deep Learning
 
-## Purpose
+**Model Definition:** `Planaura_HLS.dlpk`
 
-This DLPK performs **change classification** between two dates and outputs a **single-band classified raster**.
-
-## Input Requirements
-
-Provide a **12-band composite raster** with this exact layout:
-
-### Bands 1–6 = before image
-- B02
-- B03
-- B04
-- B8A
-- B11
-- B12
-
-### Bands 7–12 = after image
-- B02
-- B03
-- B04
-- B8A
-- B11
-- B12
-
-This **HLS Planaura DLPK** is intended for **HLS imagery**.
-
-## ArcGIS Tool Settings
-
-- **Tool**: Classify Pixels Using Deep Learning
-- **Model Definition**: `Planaura_HLS.dlpk`
-
-Typical arguments:
-
-```text
+**Arguments:**
+```
 padding=64; batch_size=1; use_f16=0
 ```
 
+## Input Requirements
+
+Provide a **12-band composite raster** with this exact band order:
+
+| Bands | Image | Spectral Band |
+|-------|-------|---------------|
+| 1-6 | Before | B02 (Blue), B03 (Green), B04 (Red), B8A (NIR 865nm), B11 (SWIR 1610nm), B12 (SWIR 2190nm) |
+| 7-12 | After | B02 (Blue), B03 (Green), B04 (Red), B8A (NIR 865nm), B11 (SWIR 1610nm), B12 (SWIR 2190nm) |
+
 ## Output Classes
 
-The output raster uses these class values:
+The model outputs a classified raster based on cosine similarity between the before/after image embeddings:
 
-| Value | Label | Meaning |
-|------:|-------|---------|
-| 0 | NoData | invalid / missing data |
-| 1 | No Change | cosine > 0.80 |
-| 2 | Low Change | cosine > 0.60 and <= 0.80 |
-| 3 | Moderate Change | cosine > 0.40 and <= 0.60 |
-| 4 | High Change | cosine <= 0.40 |
+| Value | Class | Cosine Similarity | Recommended Color |
+|------:|-------|-------------------|-------------------|
+| 0 | NoData | N/A | Transparent |
+| 1 | No Change | > 0.80 | Dark Green |
+| 2 | Low Change | 0.60 - 0.80 | Yellow-Green |
+| 3 | Moderate Change | 0.40 - 0.60 | Orange |
+| 4 | High Change | <= 0.40 | Red |
 
-## Recommended Symbology
+## How It Works
 
-- 0 = transparent or light gray
-- 1 = dark green
-- 2 = yellow-green
-- 3 = orange
-- 4 = red
+Planaura uses a Vision Transformer (ViT) architecture to generate high-dimensional embeddings (768-dim) for each image. In bi-temporal mode, it compares embeddings from two dates using cosine similarity to detect changes. Lower cosine values indicate greater change between the images.
 
+### Model Architecture
 
-## Quick Usage Note
+- **Image Size:** 512 x 512
+- **Patch Size:** 16
+- **Embedding Dimension:** 768
+- **Encoder Depth:** 12 layers
+- **Decoder Depth:** 8 layers
 
-> Use this DLPK with **Classify Pixels Using Deep Learning** on a 12-band composite raster where bands 1–6 are the before image and bands 7–12 are the after image. 
-Output classes are 0 = no-data, 1 = no change, 2 = low change, 3 = moderate change, and 4 = high change.
+## License
+
+This DLPK is based on the Planaura model by Natural Resources Canada. See the [original repository](https://github.com/NRCan/planaura/) for license details.
