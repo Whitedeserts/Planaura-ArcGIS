@@ -1,6 +1,28 @@
-# Planaura HLS DLPK for ArcGIS Pro
+# Planaura HLS for ArcGIS Pro
 
 This package contains the **HLS variant** of the Planaura model for use with **ArcGIS Pro**.
+
+## Model Weights
+
+The model weights are not included in this repository due to file size limitations. Download them from the original Planaura repository:
+
+**Download:** https://github.com/NRCan/planaura/
+
+After downloading, place the model weights file (`Planaura-1.0-HLS.pth`) in the `model/` directory:
+
+```
+model/
+└── Planaura-1.0-HLS.pth
+```
+
+## Repository Structure
+
+```
+├── Planaura.py          # ArcGIS Python raster function
+├── Planaura_HLS.emd     # Esri model definition
+├── lib/                 # Vendored support libraries
+└── model/               # Model weights (download separately)
+```
 
 Use it with:
 
