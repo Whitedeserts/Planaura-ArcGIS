@@ -18,9 +18,7 @@ In **bi-temporal mode**, Planaura compares two images of the same location at di
 
 - **ArcGIS Pro** 3.1 or later
 - **Image Analyst** extension
-- ArcGIS deep learning frameworks installed ([instructions](https://pro.arcgis.com/en/pro-app/latest/help/analysis/image-analyst/install-deep-learning-frameworks-for-arcgis.htm))
-- Python environment with `arcgis` package (included with ArcGIS Pro)
-
+- ArcGIS deep learning frameworks installed ([instructions](https://pro.arcgis.com/en/pro-app/latest/help/analysis/deep-learning/install-deep-learning-frameworks.htm))
 ---
 
 ## Model Variants
